@@ -7,50 +7,61 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 
-# Setup browser
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-driver.maximize_window()
-wait = WebDriverWait(driver, 15)
+class AdNabuStoreTest:
+    def __init__(self):
+        # Setup browser
+        self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+        self.driver.maximize_window()
+        self.wait = WebDriverWait(self.driver, 15)
 
-try:
-    # Open website
-    driver.get("https://adnabu-store-assignment1.myshopify.com")
+    def open_site(self, url, password):
+        self.driver.get(url)
+        # Enter store password
+        self.wait.until(EC.visibility_of_element_located((By.ID, "password"))).send_keys(password)
+        self.wait.until(EC.element_to_be_clickable(
+            (By.XPATH, "//button[normalize-space()='Enter']"))
+        ).click()
 
-    # Enter password
-    wait.until(EC.visibility_of_element_located((By.ID, "password"))).send_keys("AdNabuQA")
-    wait.until(EC.element_to_be_clickable(
-        (By.XPATH, "//button[normalize-space()='Enter']"))
-    ).click()
+    def search_product(self, product_name):
+        # Open search modal
+        self.wait.until(EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, ".modal__toggle-open.icon.icon-search"))
+        ).click()
+        # Enter product name
+        self.wait.until(EC.visibility_of_element_located(
+            (By.ID, "Search-In-Modal"))
+        ).send_keys(product_name)
+        # Click search button
+        self.wait.until(EC.element_to_be_clickable(
+            (By.CSS_SELECTOR, ".search__button.field__button"))
+        ).click()
 
-    # Click search icon
-    wait.until(EC.element_to_be_clickable(
-        (By.CSS_SELECTOR, ".modal__toggle-open.icon.icon-search"))
-    ).click()
+    def select_product(self, product_id):
+        # Select the product by ID
+        self.wait.until(EC.element_to_be_clickable(
+            (By.ID, product_id))
+        ).click()
 
-    # Enter product name
-    wait.until(EC.visibility_of_element_located(
-        (By.ID, "Search-In-Modal"))
-    ).send_keys("The Complete Snowboard")
+    def add_to_cart(self):
+        # Click Add to Cart button
+        self.wait.until(EC.element_to_be_clickable(
+           # (By.XPATH, "//button[contains(@id,'ProductSubmitButton')]"))
+(By.ID,"ProductSubmitButton-template--19850788667482__main"))
+        ).click()
 
-    # Click search button
-    wait.until(EC.element_to_be_clickable(
-        (By.CSS_SELECTOR, ".search__button.field__button"))
-    ).click()
+    def close(self):
+        self.driver.quit()
 
-    # Select product 
-    wait.until(EC.element_to_be_clickable(
-         (By.ID, "CardLink--7801364480090"))
-    ).click()
 
-    # Add to Cart
-    wait.until(EC.element_to_be_clickable(
-        (By.XPATH, "//button[contains(@id,'ProductSubmitButton')]"))
-    ).click()
-
-    print("Test Passed: Product added to cart")
-
-except Exception as e:
-    print("Test Failed:", e)
-
-finally:
-    driver.quit()
+if __name__ == "__main__":
+    test = AdNabuStoreTest()
+    try:
+        test.open_site("https://adnabu-store-assignment1.myshopify.com", "AdNabuQA")
+        test.search_product("The Complete Snowboard")
+        test.select_product("CardLink--7801364480090")
+        test.add_to_cart()
+        print(" Test Passed: Product successfully added to cart")
+    except Exception as e:
+        print(" Test Failed:", e)
+    finally:
+        test.close()
