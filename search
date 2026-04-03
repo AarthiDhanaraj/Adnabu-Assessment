@@ -1,0 +1,56 @@
+# test_search_addtocart_optimized.py
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.chrome import ChromeDriverManager
+
+# Setup browser
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+driver.maximize_window()
+wait = WebDriverWait(driver, 15)
+
+try:
+    # Open website
+    driver.get("https://adnabu-store-assignment1.myshopify.com")
+
+    # Enter password
+    wait.until(EC.visibility_of_element_located((By.ID, "password"))).send_keys("AdNabuQA")
+    wait.until(EC.element_to_be_clickable(
+        (By.XPATH, "//button[normalize-space()='Enter']"))
+    ).click()
+
+    # Click search icon
+    wait.until(EC.element_to_be_clickable(
+        (By.CSS_SELECTOR, ".modal__toggle-open.icon.icon-search"))
+    ).click()
+
+    # Enter product name
+    wait.until(EC.visibility_of_element_located(
+        (By.ID, "Search-In-Modal"))
+    ).send_keys("The Complete Snowboard")
+
+    # Click search button
+    wait.until(EC.element_to_be_clickable(
+        (By.CSS_SELECTOR, ".search__button.field__button"))
+    ).click()
+
+    # Select product 
+    wait.until(EC.element_to_be_clickable(
+         (By.ID, "CardLink--7801364480090"))
+    ).click()
+
+    # Add to Cart
+    wait.until(EC.element_to_be_clickable(
+        (By.XPATH, "//button[contains(@id,'ProductSubmitButton')]"))
+    ).click()
+
+    print("Test Passed: Product added to cart")
+
+except Exception as e:
+    print("Test Failed:", e)
+
+finally:
+    driver.quit()
